@@ -11,6 +11,7 @@
 
 import Vue from 'vue'
 
+import user from 'src/libs/user'
 import firebase from '../libs/firebase'
 import 'firebase/analytics'
 import 'firebase/auth'
@@ -46,10 +47,9 @@ export default Vue.extend({
     },
     setupLoginListener () {
       // Aguarda o usuário fazer login
-      firebase.auth().onAuthStateChanged(user => {
-        if (!user) return
-
-        this.$q.localStorage.set('user', user.toJSON())
+      firebase.auth().onAuthStateChanged(_user => {
+        if (!_user) return
+        user.setUser(_user)
         this.$router.push('/')
       })
     }
