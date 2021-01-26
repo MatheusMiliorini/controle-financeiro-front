@@ -89,13 +89,9 @@
 <script lang="ts">
 
 import Vue from 'vue'
-import firebase from 'src/libs/firebase'
-import 'firebase/auth'
-import 'firebase/firestore'
+import Category from 'src/classes/Category'
 import user from 'src/libs/user'
 import ntf from 'src/libs/notify'
-
-const db = firebase.firestore()
 
 export default Vue.extend({
   name: 'CategoryForm',
@@ -120,16 +116,15 @@ export default Vue.extend({
       const userId = user.getUid()
       if (!userId) return
 
-      db.collection('category').add({
-        ...this.form,
-        userId
-      }).then((doc) => {
-        ntf.success('Categoria inserida com sucesso!')
-        this.$emit('created', doc)
-        this.$emit('input', false)
-      }).catch(() => {
-        ntf.error('Ocorreu um erro ao inserir a categoria!')
-      })
+      const cat = new Category()
+      cat.insert(this.form)
+        .then((doc) => {
+          ntf.success('Categoria inserida com sucesso!')
+          this.$emit('submit', doc)
+          this.$emit('input', false)
+        }).catch(() => {
+          ntf.error('Ocorreu um erro ao inserir a categoria!')
+        })
     }
   }
 })
