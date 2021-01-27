@@ -79,7 +79,7 @@
           <q-separator />
           <q-card-actions align="right">
             <q-btn @click="$emit('input', false)" flat color="grey-9" label="Cancelar" />
-            <q-btn @click="$refs.form.submit()" flat color="primary" label="Salvar" />
+            <q-btn @click="submitForm()" flat color="primary" label="Salvar" />
           </q-card-actions>
         </div>
       </q-card>
@@ -92,6 +92,7 @@ import Vue from 'vue'
 import Category from 'src/classes/Category'
 import user from 'src/libs/user'
 import ntf from 'src/libs/notify'
+import { VForm } from 'src/types/VForm'
 
 export default Vue.extend({
   name: 'CategoryForm',
@@ -112,18 +113,26 @@ export default Vue.extend({
     }
   },
   methods: {
+    submitForm () {
+      (this.$refs.form as VForm).submit()
+    },
     handleSubmit () {
-      const userId = user.getUid()
-      if (!userId) return
+      (this.$refs.form as VForm).validate()
+        .then(valid => {
+          if (!valid) return
 
-      new Category()
-        .insert(this.form)
-        .then((doc) => {
-          ntf.success('Categoria inserida com sucesso!')
-          this.$emit('submit', doc)
-          this.$emit('input', false)
-        }).catch(() => {
-          ntf.error('Ocorreu um erro ao inserir a categoria!')
+          const userId = user.getUid()
+          if (!userId) return
+
+          new Category()
+            .insert(this.form)
+            .then((doc) => {
+              ntf.success('Categoria inserida com sucesso!')
+              this.$emit('submit', doc)
+              this.$emit('input', false)
+            }).catch(() => {
+              ntf.error('Ocorreu um erro ao inserir a categoria!')
+            })
         })
     }
   }
