@@ -4,12 +4,14 @@ import user from 'src/libs/user'
 
 abstract class Model {
   abstract collectionName: string
+  // Necessário para forçar o tipo
+  abstract insert(data: unknown) : Promise<firebase.firestore.DocumentReference<unknown>>
 
   /**
    * Realiza a query na collection
    * @param queryFilter
    */
-  async query (
+  async query<T> (
     queryFilter?: (query: firebase.firestore.Query) => firebase.firestore.Query
   ) {
     const collection = db
@@ -23,26 +25,26 @@ abstract class Model {
     } else {
       result = await collection.get()
     }
-    return this.parseDocumentData(result)
+    return this.parseDocumentData<T>(result)
   }
 
   /**
    * Itera todos os dados da QuerySnapshot
    */
-  private parseDocumentData (
+  private parseDocumentData<T> (
     dd: firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>
-  ): Array<firebase.firestore.DocumentData> {
-    const arr = Array<firebase.firestore.DocumentData>(0)
-    dd.docs.forEach(doc => { arr.push(doc.data()) })
+  ): Array<T> {
+    const arr = Array<T>(0)
+    dd.docs.forEach(doc => { arr.push(doc.data() as T) })
     return arr
   }
 
-  protected insert (data: firebase.firestore.DocumentData) : Promise<firebase.firestore.DocumentReference<firebase.firestore.DocumentData>> {
+  protected _insert<T> (data: T) : Promise<firebase.firestore.DocumentReference<T>> {
     return new Promise((resolve, reject) => {
       db.collection(this.collectionName)
         .add({ ...data, userId: user.getUid() })
-        .then(val => { resolve(val) })
-        .catch(e => { reject(e) })
+        .then(val => resolve(val as firebase.firestore.DocumentReference<T>))
+        .catch(e => reject(e))
     })
   }
 }

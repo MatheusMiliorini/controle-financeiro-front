@@ -16,10 +16,8 @@
 
 import Vue from 'vue'
 import CategoryForm from '../components/Forms/Category.vue'
-// import db from 'src/libs/database'
 import user from 'src/libs/user'
-import firebase from 'src/libs/firebase'
-import Category from 'src/classes/Category'
+import Category, { ICategory } from 'src/classes/Category'
 
 export default Vue.extend({
   name: 'Category',
@@ -32,7 +30,7 @@ export default Vue.extend({
   data () {
     return {
       categoryForm: false,
-      categories: Array<firebase.firestore.DocumentData>(0)
+      categories: Array<ICategory>(0)
     }
   },
   methods: {
@@ -43,15 +41,15 @@ export default Vue.extend({
       const userId = user.getUid()
       if (!userId) return
 
-      const cat = new Category()
-      cat.query(query => {
-        return query.orderBy('name')
-      }).then(data => {
-        // Limpa a array
-        this.categories = []
-        // Adiciona a lista completa
-        this.categories = data
-      })
+      new Category()
+        .query<ICategory>(query => {
+          return query.orderBy('name')
+        }).then(data => {
+          // Limpa a array
+          this.categories = []
+          // Adiciona a lista completa
+          this.categories = data
+        })
     }
   }
 })

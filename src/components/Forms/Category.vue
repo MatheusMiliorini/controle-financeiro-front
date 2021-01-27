@@ -116,8 +116,8 @@ export default Vue.extend({
       const userId = user.getUid()
       if (!userId) return
 
-      const cat = new Category()
-      cat.insert(this.form)
+      new Category()
+        .insert(this.form)
         .then((doc) => {
           ntf.success('Categoria inserida com sucesso!')
           this.$emit('submit', doc)
