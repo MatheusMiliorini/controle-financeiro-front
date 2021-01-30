@@ -5,7 +5,9 @@ import user from 'src/libs/user'
 abstract class Model {
   abstract collectionName: string
   // Necessário para forçar o tipo
-  abstract insert(data: unknown) : Promise<firebase.firestore.DocumentReference<unknown>>
+  abstract insert (data: unknown) : Promise<firebase.firestore.DocumentReference<unknown>>
+  abstract read (id: string) : Promise<unknown>
+  abstract update (data: unknown) : Promise<unknown>
 
   /**
    * Realiza a query na collection
@@ -35,7 +37,12 @@ abstract class Model {
     dd: firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>
   ): Array<T> {
     const arr = Array<T>(0)
-    dd.docs.forEach(doc => { arr.push(doc.data() as T) })
+    dd.docs.forEach(doc => {
+      arr.push({
+        ...doc.data() as T,
+        id: doc.id
+      })
+    })
     return arr
   }
 
@@ -47,6 +54,35 @@ abstract class Model {
         .catch(e => reject(e))
     })
   }
+
+  protected _read<T> (id: string): Promise<T> {
+    return new Promise((resolve, reject) => {
+      db.collection(this.collectionName)
+        .doc(id)
+        .get()
+        .then(res => {
+          resolve({
+            ...res.data() as T,
+            id
+          } as T)
+        })
+        .catch(err => reject(err))
+    })
+  }
+
+  protected _update<T extends IRecord> (data: T): Promise<T> {
+    return new Promise((resolve, reject) => {
+      db.collection(this.collectionName)
+        .doc(data.id)
+        .update(data)
+        .then(() => resolve(data))
+        .catch(err => reject(err))
+    })
+  }
+}
+
+interface IRecord {
+  id: string
 }
 
 export default Model

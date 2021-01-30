@@ -19,7 +19,7 @@
       </q-list>
     </q-drawer> -->
 
-    <q-page-container>
+    <q-page-container style="padding-top: 30px">
       <router-view />
     </q-page-container>
 

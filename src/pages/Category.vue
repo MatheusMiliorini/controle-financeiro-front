@@ -1,9 +1,24 @@
 <template>
-  <q-page padding>
+  <q-page>
+    <q-list bordered separator>
+      <q-item
+        v-for="cat in categories"
+        :key="cat.id"
+        clickable v-ripple
+        @click="openCategory(cat.id || '')"
+      >
+        <q-item-section avatar>
+          <q-icon :style="`color: ${cat.iconColor}`" :name="cat.icon" />
+        </q-item-section>
+
+        <q-item-section>{{ cat.name }}</q-item-section>
+      </q-item>
+    </q-list>
 
     <category-form
       v-model="categoryForm"
       @submit="fetchCategories"
+      :id="catId"
     />
 
     <q-page-sticky position="bottom-right" :offset="[18, 18]">
@@ -19,6 +34,8 @@ import CategoryForm from '../components/Forms/Category.vue'
 import user from 'src/libs/user'
 import Category, { ICategory } from 'src/classes/Category'
 
+const cat = new Category()
+
 export default Vue.extend({
   name: 'Category',
   components: {
@@ -30,7 +47,8 @@ export default Vue.extend({
   data () {
     return {
       categoryForm: false,
-      categories: Array<ICategory>(0)
+      categories: Array<ICategory>(0),
+      catId: ''
     }
   },
   methods: {
@@ -41,15 +59,18 @@ export default Vue.extend({
       const userId = user.getUid()
       if (!userId) return
 
-      new Category()
-        .query<ICategory>(query => {
-          return query.orderBy('name')
-        }).then(data => {
-          // Limpa a array
-          this.categories = []
-          // Adiciona a lista completa
-          this.categories = data
-        })
+      cat.query<ICategory>(query => {
+        return query.orderBy('name')
+      }).then(data => {
+        // Limpa a array
+        this.categories = []
+        // Adiciona a lista completa
+        this.categories = data
+      })
+    },
+    openCategory (id: string) {
+      this.catId = id
+      this.categoryForm = true
     }
   }
 })
