@@ -20,9 +20,9 @@ class Category extends Model {
     })
   }
 
-  update (data: ICategory & { id: string }): Promise<ICategory> {
+  update (id: string, data: ICategory): Promise<ICategory> {
     return new Promise((resolve, reject) => {
-      this._update(data)
+      this._update(id, data)
         .then(res => resolve(res))
         .catch(err => reject(err))
     })
@@ -31,8 +31,7 @@ class Category extends Model {
 
 export interface ICategory {
   name: string,
-  icon: string,
-  iconColor: string
+  emoji: string|null
 }
 
 export default Category

@@ -6,7 +6,8 @@ export default {
       message: val,
       icon: 'error',
       color: 'negative',
-      html: true
+      html: true,
+      closeBtn: '👌'
     })
   },
   warn (val: string) {
@@ -14,7 +15,8 @@ export default {
       message: val,
       icon: 'warning',
       color: 'warning',
-      html: true
+      html: true,
+      closeBtn: '👌'
     })
   },
   success (val: string) {
@@ -22,7 +24,8 @@ export default {
       message: val,
       icon: 'done',
       color: 'positive',
-      html: true
+      html: true,
+      closeBtn: '👌'
     })
   }
 }

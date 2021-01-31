@@ -7,7 +7,7 @@ abstract class Model {
   // Necessário para forçar o tipo
   abstract insert (data: unknown) : Promise<firebase.firestore.DocumentReference<unknown>>
   abstract read (id: string) : Promise<unknown>
-  abstract update (data: unknown) : Promise<unknown>
+  abstract update (id: string, data: unknown) : Promise<unknown>
 
   /**
    * Realiza a query na collection
@@ -51,7 +51,10 @@ abstract class Model {
       db.collection(this.collectionName)
         .add({ ...data, userId: user.getUid() })
         .then(val => resolve(val as firebase.firestore.DocumentReference<T>))
-        .catch(e => reject(e))
+        .catch(e => {
+          console.error(e)
+          reject(e)
+        })
     })
   }
 
@@ -70,16 +73,16 @@ abstract class Model {
     })
   }
 
-  protected _update<T extends IRecord> (data: T): Promise<T> {
+  protected _update<T> (id: string, data: T): Promise<T> {
     return new Promise((resolve, reject) => {
       db.collection(this.collectionName)
-        .doc(data.id)
-        .update({
-          ...data,
-          id: undefined
-        })
+        .doc(id)
+        .update(data)
         .then(() => resolve(data))
-        .catch(err => reject(err))
+        .catch(err => {
+          console.error(err)
+          reject(err)
+        })
     })
   }
 

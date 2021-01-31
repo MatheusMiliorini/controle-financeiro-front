@@ -13,12 +13,14 @@
           <q-icon name="delete" />
         </template>
 
-        <q-item>
-          <q-item-section avatar>
-            <q-icon :style="`color: ${cat.iconColor}`" :name="cat.icon" />
+        <q-item style="font-size: 22px">
+          <q-item-section v-if="cat.emoji" avatar>
+            {{ cat.emoji }}
           </q-item-section>
 
-          <q-item-section>{{ cat.name }}</q-item-section>
+          <q-item-section>
+            {{ cat.name }}
+          </q-item-section>
         </q-item>
       </q-slide-item>
     </q-list>
@@ -28,6 +30,7 @@
       @submit="fetchCategories"
       :id="catId"
       @delete="askDelete"
+      :key="formKey"
     />
 
     <q-page-sticky position="bottom-right" :offset="[18, 18]">
@@ -43,6 +46,7 @@ import CategoryForm from '../components/Forms/Category.vue'
 import user from 'src/libs/user'
 import Category, { ICategory } from 'src/classes/Category'
 import ntf from 'src/libs/notify'
+import { Dialog } from 'quasar'
 
 const cat = new Category()
 
@@ -58,7 +62,18 @@ export default Vue.extend({
     return {
       categoryForm: false,
       categories: Array<ICategory & { id: string }>(0),
-      catId: ''
+      catId: '',
+      formKey: false
+    }
+  },
+  watch: {
+    categoryForm: function (val: boolean) {
+      if (!val) {
+        setTimeout(() => {
+          this.catId = ''
+          this.formKey = !this.formKey
+        }, 500)
+      }
     }
   },
   methods: {
@@ -83,7 +98,7 @@ export default Vue.extend({
       this.categoryForm = true
     },
     askDelete (id: string, name: string, reset?: () => void) {
-      this.$q.dialog({
+      Dialog.create({
         title: 'Deletar',
         message: `Tem certeza de que deseja deletar a categoria "${name}"?`,
         cancel: true,
