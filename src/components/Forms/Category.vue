@@ -79,6 +79,7 @@
         <q-separator />
         <q-card-actions align="right">
           <q-btn @click="$emit('input', false)" flat color="grey-9" label="Cancelar" />
+          <q-btn v-if="id" @click="$emit('delete', id, form.name)" flat color="negative" label="Excluir" />
           <q-btn @click="submitForm()" flat color="primary" label="Salvar" />
         </q-card-actions>
       </div>
@@ -89,7 +90,7 @@
 <script lang="ts">
 
 import Vue from 'vue'
-import Category, { ICategory, isFullCategory } from 'src/classes/Category'
+import Category, { ICategory } from 'src/classes/Category'
 import user from 'src/libs/user'
 import ntf from 'src/libs/notify'
 import { VForm } from 'src/types/VForm'
@@ -105,7 +106,6 @@ export default Vue.extend({
   data () {
     return {
       form: <ICategory>{
-        id: undefined,
         name: '',
         icon: '',
         iconColor: ''
@@ -136,8 +136,11 @@ export default Vue.extend({
           if (!userId) return
 
           // Update
-          if (isFullCategory(this.form)) {
-            cat.update(this.form)
+          if (this.id) {
+            cat.update({
+              ...this.form,
+              id: this.id
+            })
               .then(doc => {
                 ntf.success('Categoria atualizada com sucesso!')
                 this.$emit('submit', doc)

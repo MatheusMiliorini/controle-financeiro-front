@@ -20,7 +20,7 @@ class Category extends Model {
     })
   }
 
-  update (data: IFullCategory): Promise<IFullCategory> {
+  update (data: ICategory & { id: string }): Promise<ICategory> {
     return new Promise((resolve, reject) => {
       this._update(data)
         .then(res => resolve(res))
@@ -30,18 +30,9 @@ class Category extends Model {
 }
 
 export interface ICategory {
-  id?: string,
   name: string,
   icon: string,
   iconColor: string
-}
-
-export interface IFullCategory extends ICategory {
-  id: string
-}
-
-export function isFullCategory (category: ICategory): category is IFullCategory {
-  return category.id !== undefined
 }
 
 export default Category

@@ -35,8 +35,8 @@ abstract class Model {
    */
   private parseDocumentData<T> (
     dd: firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>
-  ): Array<T> {
-    const arr = Array<T>(0)
+  ): Array<T & { id: string }> {
+    const arr = Array<T & { id: string }>(0)
     dd.docs.forEach(doc => {
       arr.push({
         ...doc.data() as T,
@@ -55,7 +55,7 @@ abstract class Model {
     })
   }
 
-  protected _read<T> (id: string): Promise<T> {
+  protected _read<T> (id: string): Promise<T & { id: string }> {
     return new Promise((resolve, reject) => {
       db.collection(this.collectionName)
         .doc(id)
@@ -64,7 +64,7 @@ abstract class Model {
           resolve({
             ...res.data() as T,
             id
-          } as T)
+          })
         })
         .catch(err => reject(err))
     })
@@ -74,8 +74,21 @@ abstract class Model {
     return new Promise((resolve, reject) => {
       db.collection(this.collectionName)
         .doc(data.id)
-        .update(data)
+        .update({
+          ...data,
+          id: undefined
+        })
         .then(() => resolve(data))
+        .catch(err => reject(err))
+    })
+  }
+
+  delete (id: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      db.collection(this.collectionName)
+        .doc(id)
+        .delete()
+        .then(() => resolve())
         .catch(err => reject(err))
     })
   }
